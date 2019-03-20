@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using Mirror;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : NetworkBehaviour
 {
     private new Rigidbody rigidbody;
     [Range(0,100)]
@@ -16,7 +17,15 @@ public class PlayerController : MonoBehaviour
         rigidbody = GetComponent<Rigidbody>();
     }
 
+    private void Start() {
+        if(!isLocalPlayer)
+            transform.GetComponentInChildren<Camera>().gameObject.SetActive(false); 
+    }
+
     private void Update() {
+        if(!isLocalPlayer)
+            return;
+
         float x = Input.GetAxisRaw("Horizontal");
         float z = Input.GetAxisRaw("Vertical"); 
         xInputText.text = x.ToString();
