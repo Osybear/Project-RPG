@@ -6,11 +6,10 @@ using TMPro;
 
 public class MyNetworkManager : NetworkManager {
 
-    [Header("Login Info")]
-    public DatabaseManager databaseManager;
+    [Header("Account Info")]
     public TextMeshProUGUI username;
-    public TextMeshProUGUI password;    
-
+    public TextMeshProUGUI password;
+    
     class CredentialsMessage : MessageBase {
         // use whatever credentials make sense for your game
         // for example,  you might want to pass the accessToken if using oauth
@@ -39,13 +38,14 @@ public class MyNetworkManager : NetworkManager {
         var msg = MessagePacker.Unpack<CredentialsMessage>(extraMessage.value);
 
         // check the credentials by calling your web server, database table, playfab api, or any method appropriate.
-        if (databaseManager.CheckDatabase(msg.username, msg.password)){
+        if (msg.username == "bob" && msg.password == "larry"){
             // proceed to regular add player
             Debug.Log("Matching Credentials");
             base.OnServerAddPlayer(connection, extraMessage);
         }
         else{
             connection.Disconnect();
+            Debug.Log("Incorrect Credentials");
         } 
     }
 

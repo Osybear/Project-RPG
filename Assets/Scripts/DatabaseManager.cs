@@ -1,46 +1,34 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using MySql.Data;
-using MySql.Data.MySqlClient;
-using System;
-using BCrypt.Net;
+using UnityEngine.Networking;
+//https://stackoverflow.com/questions/46003824/sending-http-requests-in-c-sharp-with-unity
 
 public class DatabaseManager : MonoBehaviour
-{
+{   
+    private static string accountUrl = "https://xnr.gg/nVcihgr8Mo/";
+    
+    private void Start() {
+        //StartCoroutine(PostRequestFormAccount("Osybear", "password"));
+    }
 
-    //make sure to move this script to the server
-    //have the client ask the server for stuff yea pepega
-    public bool CheckDatabase(string username, string password){
+    public static IEnumerator PostRequestFormAccount(System.Action<string> callback, string username, string password) {
+        WWWForm form = new WWWForm();
+        form.AddField("action0", "doval");
+        form.AddField("username", username);
+        form.AddField("password", password);
+        //Debug.Log("Username : " + username);
+        //Debug.Log("Password : " + password);
 
-        string connectionString = "host=192.168.1.203;port=3306;user=game;password=15wXsQK3gLi9IhhBO44b;database=game";
-        MySqlConnection connection = new MySqlConnection(connectionString);
-        try
-        {
-            Debug.Log("Connecting to MySQL...");
-            connection.Open();
+        UnityWebRequest uwr = UnityWebRequest.Post(accountUrl, form);
+        yield return uwr.SendWebRequest();
 
-            
-            string sql = "SELECT `password` FROM `users` WHERE `username` = '" + username + "';";
-            MySqlCommand command = new MySqlCommand(sql, connection);
-            MySqlDataReader reader = command.ExecuteReader();
-            reader.Read();
-            string hashed = reader[0].ToString();
-            bool verified = BCrypt.Net.BCrypt.Verify(password, hashed, false, BCrypt.Net.HashType.SHA384);
-
-            if(verified)
-                return true;
-            reader.Close();
-            
+        if (uwr.isNetworkError) {
+            Debug.Log("Error While Sending: " + uwr.error);
         }
-        catch (Exception e)
-        {
-            Debug.Log(e.ToString());
-            return false;
+        else {
+            Debug.Log("Received: " + uwr.downloadHandler.text);
+            callback(uwr.downloadHandler.text);
         }
-
-        connection.Close();
-        Debug.Log("Connection Closed");
-        return false;
     }
 }
