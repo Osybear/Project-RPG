@@ -4,8 +4,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 //https://stackoverflow.com/questions/46003824/sending-http-requests-in-c-sharp-with-unity
 
-public class DatabaseManager : MonoBehaviour
-{   
+public class DatabaseManager : MonoBehaviour {   
     private static string accountUrl = "https://xnr.gg/nVcihgr8Mo/";
     
     private void Start() {

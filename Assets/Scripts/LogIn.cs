@@ -5,8 +5,7 @@ using TMPro;
 using Mirror;
 //https://answers.unity.com/questions/24640/how-do-i-return-a-value-from-a-coroutine.html
 
-public class LogIn : MonoBehaviour
-{   
+public class LogIn : MonoBehaviour {   
     public NetworkManager networkManager;
     public TMP_InputField usernameField;
     public TMP_InputField passwordField;

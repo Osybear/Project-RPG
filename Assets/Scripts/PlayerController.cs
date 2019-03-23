@@ -4,8 +4,7 @@ using UnityEngine;
 using TMPro;
 using Mirror;
 
-public class PlayerController : NetworkBehaviour
-{
+public class PlayerController : NetworkBehaviour {
     private new Rigidbody rigidbody;
     [Range(0,100)]
     public float speed;
@@ -16,10 +15,10 @@ public class PlayerController : NetworkBehaviour
     private void Awake() {
         rigidbody = GetComponent<Rigidbody>();
     }
-
+    
     private void Start() {
         if(!isLocalPlayer)
-            transform.GetComponentInChildren<Camera>().gameObject.SetActive(false); 
+            transform.GetChild(0).gameObject.SetActive(false); 
     }
 
     private void Update() {
