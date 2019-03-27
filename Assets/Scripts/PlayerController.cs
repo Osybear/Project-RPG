@@ -17,8 +17,13 @@ public class PlayerController : NetworkBehaviour {
     }
     
     private void Start() {
-        if(!isLocalPlayer)
-            transform.GetChild(0).gameObject.SetActive(false); 
+        if(!isLocalPlayer) {
+           transform.GetChild(0).gameObject.SetActive(false);      
+           gameObject.name = "Not Local Player";      
+        }else {
+            gameObject.name = "Local Player";
+        }
+
     }
 
     private void Update() {

@@ -9,8 +9,8 @@ public class UIManager : NetworkBehaviour {
     public Transform player;
 
     private void Update() {
-        if(!isLocalPlayer) {
+        //if(!isLocalPlayer) {
             healthBar.position = mainCamera.WorldToScreenPoint(player.position);          
-        }
+        //}
     }
 }
