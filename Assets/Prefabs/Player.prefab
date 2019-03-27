@@ -817,7 +817,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 112
+  m_Constraints: 126
   m_CollisionDetection: 0
 --- !u!114 &1616780849042172468
 MonoBehaviour:
@@ -832,6 +832,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   syncInterval: 0.1
+  rigidbody: {fileID: 1616780849042172469}
   speed: 3.6
   xInputText: {fileID: 2034719620}
   zInputText: {fileID: 904913223}
@@ -850,8 +851,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_ServerOnly: 0
   m_LocalPlayerAuthority: 1
-  m_AssetId: 
-  m_SceneId: 1612433184
+  m_AssetId: 768d060955f3cd248beae95f24169b13
+  m_SceneId: 0
 --- !u!114 &5399081007477759514
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -879,6 +880,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   syncInterval: 0.1
+  rigidbody: {fileID: 1616780849042172469}
   speed: 2
   xInputText: {fileID: 2034719620}
   zInputText: {fileID: 904913223}

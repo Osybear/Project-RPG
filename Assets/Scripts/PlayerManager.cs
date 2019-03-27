@@ -4,26 +4,21 @@ using UnityEngine;
 using TMPro;
 using Mirror;
 
-public class PlayerController : NetworkBehaviour {
-    private new Rigidbody rigidbody;
+public class PlayerManager : NetworkBehaviour {
+
+    public new Rigidbody rigidbody;
     [Range(0,100)]
     public float speed;
     public TextMeshProUGUI xInputText;
     public TextMeshProUGUI zInputText;
     public TextMeshProUGUI velocityText;
 
-    private void Awake() {
-        rigidbody = GetComponent<Rigidbody>();
-    }
-    
     private void Start() {
-        if(!isLocalPlayer) {
-           transform.GetChild(0).gameObject.SetActive(false);      
-           gameObject.name = "Not Local Player";      
+        if(!isLocalPlayer) {    
+            gameObject.name = "Non Local Player";   
         }else {
-            gameObject.name = "Local Player";
+            gameObject.name = "Local Player";   
         }
-
     }
 
     private void Update() {
@@ -38,5 +33,5 @@ public class PlayerController : NetworkBehaviour {
         Vector3 direction = new Vector3(x, 0 ,z);
         rigidbody.velocity = direction * speed;
         velocityText.text = rigidbody.velocity.ToString();
-    }   
+    }
 }

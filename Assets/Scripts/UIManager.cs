@@ -8,9 +8,15 @@ public class UIManager : NetworkBehaviour {
     public RectTransform healthBar;
     public Transform player;
 
+    private void Start() {
+        if(!isLocalPlayer) {
+            mainCamera.gameObject.SetActive(false);
+            mainCamera = Camera.main;
+        }    
+    }
+
     private void Update() {
-        //if(!isLocalPlayer) {
+        if(mainCamera != null)
             healthBar.position = mainCamera.WorldToScreenPoint(player.position);          
-        //}
     }
 }
