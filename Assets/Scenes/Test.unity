@@ -317,9 +317,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab41e1c7dd0cf164da24c2218970d534, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainCamera: {fileID: 2144654758}
-  image: {fileID: 167164299}
-  player: {fileID: 1585875347}
 --- !u!65 &1585875344
 BoxCollider:
   m_ObjectHideFlags: 0
