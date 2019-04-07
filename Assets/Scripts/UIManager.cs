@@ -15,7 +15,7 @@ public class UIManager : NetworkBehaviour {
         }    
     }
 
-    private void Update() {
+    private void FixedUpdate() {
         if(mainCamera != null)
             healthBar.position = mainCamera.WorldToScreenPoint(player.position);          
     }
