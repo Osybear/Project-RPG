@@ -7,7 +7,7 @@ namespace Mirror.Weaver
 {
     public static class SyncVarProcessor
     {
-        const int k_SyncVarLimit = 64; // ulong = 64 bytes
+        const int SyncVarLimit = 64; // ulong = 64 bytes
 
         // returns false for error, not for no-hook-exists
         public static bool CheckForHookFunction(TypeDefinition td, FieldDefinition syncVar, out MethodDefinition foundMethod)
@@ -110,21 +110,7 @@ namespace Mirror.Weaver
 
             ILProcessor setWorker = set.Body.GetILProcessor();
 
-            // this
-            setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
-
-            // new value to set
-            setWorker.Append(setWorker.Create(OpCodes.Ldarg_1));
-
-            // reference to field to set
-            setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
-            setWorker.Append(setWorker.Create(OpCodes.Ldflda, fd));
-
-            // dirty bit
-            setWorker.Append(setWorker.Create(OpCodes.Ldc_I8, dirtyBit)); // 8 byte integer aka long
-
-            MethodDefinition hookFunctionMethod;
-            CheckForHookFunction(td, fd, out hookFunctionMethod);
+            CheckForHookFunction(td, fd, out MethodDefinition hookFunctionMethod);
 
             if (hookFunctionMethod != null)
             {
@@ -153,6 +139,20 @@ namespace Mirror.Weaver
 
                 setWorker.Append(label);
             }
+
+            // this
+            setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+
+            // new value to set
+            setWorker.Append(setWorker.Create(OpCodes.Ldarg_1));
+
+            // reference to field to set
+            setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+            setWorker.Append(setWorker.Create(OpCodes.Ldflda, fd));
+
+            // dirty bit
+            setWorker.Append(setWorker.Create(OpCodes.Ldc_I8, dirtyBit)); // 8 byte integer aka long
+
 
             if (fd.FieldType.FullName == Weaver.gameObjectType.FullName)
             {
@@ -300,7 +300,7 @@ namespace Mirror.Weaver
                             return;
                         }
 
-                        if (SyncObjectProcessor.ImplementsSyncObject(fd.FieldType))
+                        if (SyncObjectInitializer.ImplementsSyncObject(fd.FieldType))
                         {
                             Log.Warning(string.Format("Script class [{0}] has [SyncVar] attribute on SyncList field {1}, SyncLists should not be marked with SyncVar.", td.FullName, fd.Name));
                             break;
@@ -312,9 +312,9 @@ namespace Mirror.Weaver
                         dirtyBitCounter += 1;
                         numSyncVars += 1;
 
-                        if (dirtyBitCounter == k_SyncVarLimit)
+                        if (dirtyBitCounter == SyncVarLimit)
                         {
-                            Weaver.Error("Script class [" + td.FullName + "] has too many SyncVars (" + k_SyncVarLimit + "). (This could include base classes)");
+                            Weaver.Error("Script class [" + td.FullName + "] has too many SyncVars (" + SyncVarLimit + "). (This could include base classes)");
                             return;
                         }
                         break;

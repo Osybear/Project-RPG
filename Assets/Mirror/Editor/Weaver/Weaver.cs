@@ -63,7 +63,9 @@ namespace Mirror.Weaver
         public static TypeReference NetworkConnectionType;
 
         public static TypeReference MessageBaseType;
-        public static TypeReference SyncListStructType;
+        public static TypeReference SyncListType;
+        public static TypeReference SyncSetType;
+        public static TypeReference SyncDictionaryType;
 
         public static MethodReference NetworkBehaviourDirtyBitsReference;
         public static TypeReference NetworkClientType;
@@ -99,11 +101,15 @@ namespace Mirror.Weaver
         public static MethodReference NetworkServerGetLocalClientActive;
         public static MethodReference NetworkClientGetActive;
         public static MethodReference UBehaviourIsServer;
-        public static MethodReference NetworkReaderReadPacked32;
-        public static MethodReference NetworkReaderReadPacked64;
+        public static MethodReference NetworkReaderReadPackedUInt32;
+        public static MethodReference NetworkReaderReadPackedInt32;
+        public static MethodReference NetworkReaderReadPackedUInt64;
+        public static MethodReference NetworkReaderReadPackedInt64;
         public static MethodReference NetworkReaderReadByte;
-        public static MethodReference NetworkWriterWritePacked32;
-        public static MethodReference NetworkWriterWritePacked64;
+        public static MethodReference NetworkWriterWritePackedUInt32;
+        public static MethodReference NetworkWriterWritePackedInt32;
+        public static MethodReference NetworkWriterWritePackedUInt64;
+        public static MethodReference NetworkWriterWritePackedInt64;
 
         public static MethodReference NetworkReadUInt16;
         public static MethodReference NetworkWriteUInt16;
@@ -138,6 +144,8 @@ namespace Mirror.Weaver
         public static TypeReference vector2Type;
         public static TypeReference vector3Type;
         public static TypeReference vector4Type;
+        public static TypeReference vector2IntType;
+        public static TypeReference vector3IntType;
         public static TypeReference colorType;
         public static TypeReference color32Type;
         public static TypeReference quaternionType;
@@ -668,56 +676,6 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        static void ProcessInstructionMethod(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md, Instruction instr, MethodReference opMethodRef, int iCount)
-        {
-            //DLog(td, "ProcessInstructionMethod " + opMethod.Name);
-            if (opMethodRef.Name == "Invoke")
-            {
-                // Events use an "Invoke" method to call the delegate.
-                // this code replaces the "Invoke" instruction with the generated "Call***" instruction which send the event to the server.
-                // but the "Invoke" instruction is called on the event field - where the "call" instruction is not.
-                // so the earlier instruction that loads the event field is replaced with a Noop.
-
-                // go backwards until find a ldfld instruction that matches ANY event
-                bool found = false;
-                while (iCount > 0 && !found)
-                {
-                    iCount -= 1;
-                    Instruction inst = md.Body.Instructions[iCount];
-                    if (inst.OpCode == OpCodes.Ldfld)
-                    {
-                        FieldReference opField = inst.Operand as FieldReference;
-
-                        // find replaceEvent with matching name
-                        // NOTE: original weaver compared .Name, not just the MethodDefinition,
-                        //       that's why we use dict<string,method>.
-                        // TODO maybe replaceEvents[md] would work too?
-                        MethodDefinition replacement;
-                        if (WeaveLists.replaceEvents.TryGetValue(opField.Name, out replacement))
-                        {
-                            instr.Operand = replacement;
-                            inst.OpCode = OpCodes.Nop;
-                            found = true;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                // should it be replaced?
-                // NOTE: original weaver compared .FullName, not just the MethodDefinition,
-                //       that's why we use dict<string,method>.
-                // TODO maybe replaceMethods[md] would work too?
-                MethodDefinition replacement;
-                if (WeaveLists.replaceMethods.TryGetValue(opMethodRef.FullName, out replacement))
-                {
-                    //DLog(td, "    replacing "  + md.Name + ":" + i);
-                    instr.Operand = replacement;
-                    //DLog(td, "    replaced  "  + md.Name + ":" + i);
-                }
-            }
-        }
-
         static void ConfirmGeneratedCodeClass(ModuleDefinition moduleDef)
         {
             if (WeaveLists.generateContainerClass == null)
@@ -736,263 +694,10 @@ namespace Mirror.Weaver
             }
         }
 
-        // replaces syncvar write access with the NetworkXYZ.get property calls
-        static void ProcessInstructionSetterField(TypeDefinition td, MethodDefinition md, Instruction i, FieldDefinition opField)
-        {
-            // dont replace property call sites in constructors
-            if (md.Name == ".ctor")
-                return;
-
-            // does it set a field that we replaced?
-            MethodDefinition replacement;
-            if (WeaveLists.replacementSetterProperties.TryGetValue(opField, out replacement))
-            {
-                //replace with property
-                //DLog(td, "    replacing "  + md.Name + ":" + i);
-                i.OpCode = OpCodes.Call;
-                i.Operand = replacement;
-                //DLog(td, "    replaced  "  + md.Name + ":" + i);
-            }
-        }
-
-        // replaces syncvar read access with the NetworkXYZ.get property calls
-        static void ProcessInstructionGetterField(TypeDefinition td, MethodDefinition md, Instruction i, FieldDefinition opField)
-        {
-            // dont replace property call sites in constructors
-            if (md.Name == ".ctor")
-                return;
-
-            // does it set a field that we replaced?
-            MethodDefinition replacement;
-            if (WeaveLists.replacementGetterProperties.TryGetValue(opField, out replacement))
-            {
-                //replace with property
-                //DLog(td, "    replacing "  + md.Name + ":" + i);
-                i.OpCode = OpCodes.Call;
-                i.Operand = replacement;
-                //DLog(td, "    replaced  "  + md.Name + ":" + i);
-            }
-        }
-
-        static void ProcessInstruction(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md, Instruction i, int iCount)
-        {
-            if (i.OpCode == OpCodes.Call || i.OpCode == OpCodes.Callvirt)
-            {
-                MethodReference opMethod = i.Operand as MethodReference;
-                if (opMethod != null)
-                {
-                    ProcessInstructionMethod(moduleDef, td, md, i, opMethod, iCount);
-                }
-            }
-
-            if (i.OpCode == OpCodes.Stfld)
-            {
-                // this instruction sets the value of a field. cache the field reference.
-                FieldDefinition opField = i.Operand as FieldDefinition;
-                if (opField != null)
-                {
-                    ProcessInstructionSetterField(td, md, i, opField);
-                }
-            }
-
-            if (i.OpCode == OpCodes.Ldfld)
-            {
-                // this instruction gets the value of a field. cache the field reference.
-                FieldDefinition opField = i.Operand as FieldDefinition;
-                if (opField != null)
-                {
-                    ProcessInstructionGetterField(td, md, i, opField);
-                }
-            }
-        }
-
-        // this is required to early-out from a function with "ref" or "out" parameters
-        static void InjectGuardParameters(MethodDefinition md, ILProcessor worker, Instruction top)
-        {
-            int offset = md.Resolve().IsStatic ? 0 : 1;
-            for (int index = 0; index < md.Parameters.Count; index++)
-            {
-                ParameterDefinition param = md.Parameters[index];
-                if (param.IsOut)
-                {
-                    TypeReference elementType = param.ParameterType.GetElementType();
-                    if (elementType.IsPrimitive)
-                    {
-                        worker.InsertBefore(top, worker.Create(OpCodes.Ldarg, index + offset));
-                        worker.InsertBefore(top, worker.Create(OpCodes.Ldc_I4_0));
-                        worker.InsertBefore(top, worker.Create(OpCodes.Stind_I4));
-                    }
-                    else
-                    {
-                        md.Body.Variables.Add(new VariableDefinition(elementType));
-                        md.Body.InitLocals = true;
-
-                        worker.InsertBefore(top, worker.Create(OpCodes.Ldarg, index + offset));
-                        worker.InsertBefore(top, worker.Create(OpCodes.Ldloca_S, (byte)(md.Body.Variables.Count - 1)));
-                        worker.InsertBefore(top, worker.Create(OpCodes.Initobj, elementType));
-                        worker.InsertBefore(top, worker.Create(OpCodes.Ldloc, md.Body.Variables.Count - 1));
-                        worker.InsertBefore(top, worker.Create(OpCodes.Stobj, elementType));
-                    }
-                }
-            }
-        }
-
-        // this is required to early-out from a function with a return value.
-        static void InjectGuardReturnValue(MethodDefinition md, ILProcessor worker, Instruction top)
-        {
-            if (md.ReturnType.FullName != voidType.FullName)
-            {
-                if (md.ReturnType.IsPrimitive)
-                {
-                    worker.InsertBefore(top, worker.Create(OpCodes.Ldc_I4_0));
-                }
-                else
-                {
-                    md.Body.Variables.Add(new VariableDefinition(md.ReturnType));
-                    md.Body.InitLocals = true;
-
-                    worker.InsertBefore(top, worker.Create(OpCodes.Ldloca_S, (byte)(md.Body.Variables.Count - 1)));
-                    worker.InsertBefore(top, worker.Create(OpCodes.Initobj, md.ReturnType));
-                    worker.InsertBefore(top, worker.Create(OpCodes.Ldloc, md.Body.Variables.Count - 1));
-                }
-            }
-        }
-
-        static void InjectServerGuard(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md, bool logWarning)
-        {
-            if (!IsNetworkBehaviour(td))
-            {
-                Log.Error("[Server] guard on non-NetworkBehaviour script at [" + md.FullName + "]");
-                return;
-            }
-            ILProcessor worker = md.Body.GetILProcessor();
-            Instruction top = md.Body.Instructions[0];
-
-            worker.InsertBefore(top, worker.Create(OpCodes.Call, NetworkServerGetActive));
-            worker.InsertBefore(top, worker.Create(OpCodes.Brtrue, top));
-            if (logWarning)
-            {
-                worker.InsertBefore(top, worker.Create(OpCodes.Ldstr, "[Server] function '" + md.FullName + "' called on client"));
-                worker.InsertBefore(top, worker.Create(OpCodes.Call, logWarningReference));
-            }
-            InjectGuardParameters(md, worker, top);
-            InjectGuardReturnValue(md, worker, top);
-            worker.InsertBefore(top, worker.Create(OpCodes.Ret));
-        }
-
-        static void InjectClientGuard(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md, bool logWarning)
-        {
-            if (!IsNetworkBehaviour(td))
-            {
-                Log.Error("[Client] guard on non-NetworkBehaviour script at [" + md.FullName + "]");
-                return;
-            }
-            ILProcessor worker = md.Body.GetILProcessor();
-            Instruction top = md.Body.Instructions[0];
-
-            worker.InsertBefore(top, worker.Create(OpCodes.Call, NetworkClientGetActive));
-            worker.InsertBefore(top, worker.Create(OpCodes.Brtrue, top));
-            if (logWarning)
-            {
-                worker.InsertBefore(top, worker.Create(OpCodes.Ldstr, "[Client] function '" + md.FullName + "' called on server"));
-                worker.InsertBefore(top, worker.Create(OpCodes.Call, logWarningReference));
-            }
-
-            InjectGuardParameters(md, worker, top);
-            InjectGuardReturnValue(md, worker, top);
-            worker.InsertBefore(top, worker.Create(OpCodes.Ret));
-        }
-
-        static void ProcessSiteMethod(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md)
-        {
-            // process all references to replaced members with properties
-            //Weaver.DLog(td, "      ProcessSiteMethod " + md);
-
-            if (md.Name == ".cctor" ||
-                md.Name == NetworkBehaviourProcessor.ProcessedFunctionName ||
-                md.Name.StartsWith("CallCmd") ||
-                md.Name.StartsWith("InvokeCmd") ||
-                md.Name.StartsWith("InvokeRpc") ||
-                md.Name.StartsWith("InvokeSyn"))
-                return;
-
-            if (md.Body != null && md.Body.Instructions != null)
-            {
-                foreach (CustomAttribute attr in md.CustomAttributes)
-                {
-                    switch (attr.Constructor.DeclaringType.ToString())
-                    {
-                        case "Mirror.ServerAttribute":
-                            InjectServerGuard(moduleDef, td, md, true);
-                            break;
-                        case "Mirror.ServerCallbackAttribute":
-                            InjectServerGuard(moduleDef, td, md, false);
-                            break;
-                        case "Mirror.ClientAttribute":
-                            InjectClientGuard(moduleDef, td, md, true);
-                            break;
-                        case "Mirror.ClientCallbackAttribute":
-                            InjectClientGuard(moduleDef, td, md, false);
-                            break;
-                    }
-                }
-
-                int iCount = 0;
-                foreach (Instruction i in md.Body.Instructions)
-                {
-                    ProcessInstruction(moduleDef, td, md, i, iCount);
-                    iCount += 1;
-                }
-            }
-        }
-
-        static void ProcessSiteClass(ModuleDefinition moduleDef, TypeDefinition td)
-        {
-            //Console.WriteLine("    ProcessSiteClass " + td);
-            foreach (MethodDefinition md in td.Methods)
-            {
-                ProcessSiteMethod(moduleDef, td, md);
-            }
-
-            foreach (TypeDefinition nested in td.NestedTypes)
-            {
-                ProcessSiteClass(moduleDef, nested);
-            }
-        }
-
-        static void ProcessSitesModule(ModuleDefinition moduleDef)
-        {
-            DateTime startTime = DateTime.Now;
-
-            //Search through the types
-            foreach (TypeDefinition td in moduleDef.Types)
-            {
-                if (td.IsClass)
-                {
-                    ProcessSiteClass(moduleDef, td);
-                }
-            }
-            if (WeaveLists.generateContainerClass != null)
-            {
-                moduleDef.Types.Add(WeaveLists.generateContainerClass);
-                CurrentAssembly.MainModule.ImportReference(WeaveLists.generateContainerClass);
-
-                foreach (MethodDefinition f in WeaveLists.generatedReadFunctions)
-                {
-                    CurrentAssembly.MainModule.ImportReference(f);
-                }
-
-                foreach (MethodDefinition f in WeaveLists.generatedWriteFunctions)
-                {
-                    CurrentAssembly.MainModule.ImportReference(f);
-                }
-            }
-            Console.WriteLine("  ProcessSitesModule " + moduleDef.Name + " elapsed time:" + (DateTime.Now - startTime));
-        }
 
         static void ProcessPropertySites()
         {
-            ProcessSitesModule(CurrentAssembly.MainModule);
+            PropertySiteProcessor.ProcessSitesModule(CurrentAssembly.MainModule);
         }
 
         static bool ProcessNetworkBehaviourType(TypeDefinition td)
@@ -1013,6 +718,8 @@ namespace Mirror.Weaver
             vector2Type = UnityAssembly.MainModule.GetType("UnityEngine.Vector2");
             vector3Type = UnityAssembly.MainModule.GetType("UnityEngine.Vector3");
             vector4Type = UnityAssembly.MainModule.GetType("UnityEngine.Vector4");
+            vector2IntType = UnityAssembly.MainModule.GetType("UnityEngine.Vector2Int");
+            vector3IntType = UnityAssembly.MainModule.GetType("UnityEngine.Vector3Int");
             colorType = UnityAssembly.MainModule.GetType("UnityEngine.Color");
             color32Type = UnityAssembly.MainModule.GetType("UnityEngine.Color32");
             quaternionType = UnityAssembly.MainModule.GetType("UnityEngine.Quaternion");
@@ -1095,12 +802,16 @@ namespace Mirror.Weaver
             NetworkWriterWriteInt32 = Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", int32Type);
             NetworkWriterWriteInt16 = Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", int16Type);
 
-            NetworkReaderReadPacked32 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedUInt32");
-            NetworkReaderReadPacked64 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedUInt64");
+            NetworkReaderReadPackedUInt32 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedUInt32");
+            NetworkReaderReadPackedInt32 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedInt32");
+            NetworkReaderReadPackedUInt64 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedUInt64");
+            NetworkReaderReadPackedInt64 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedInt64");
             NetworkReaderReadByte = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadByte");
 
-            NetworkWriterWritePacked32 = Resolvers.ResolveMethod(NetworkWriterType, CurrentAssembly, "WritePackedUInt32");
-            NetworkWriterWritePacked64 = Resolvers.ResolveMethod(NetworkWriterType, CurrentAssembly, "WritePackedUInt64");
+            NetworkWriterWritePackedUInt32 = Resolvers.ResolveMethod(NetworkWriterType, CurrentAssembly, "WritePackedUInt32");
+            NetworkWriterWritePackedInt32 = Resolvers.ResolveMethod(NetworkWriterType, CurrentAssembly, "WritePackedInt32");
+            NetworkWriterWritePackedUInt64 = Resolvers.ResolveMethod(NetworkWriterType, CurrentAssembly, "WritePackedUInt64");
+            NetworkWriterWritePackedInt64 = Resolvers.ResolveMethod(NetworkWriterType, CurrentAssembly, "WritePackedInt64");
 
             NetworkReadUInt16 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadUInt16");
             NetworkWriteUInt16 = Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", uint16Type);
@@ -1124,7 +835,9 @@ namespace Mirror.Weaver
             NetworkConnectionType = CurrentAssembly.MainModule.ImportReference(NetworkConnectionType);
 
             MessageBaseType = NetAssembly.MainModule.GetType("Mirror.MessageBase");
-            SyncListStructType = NetAssembly.MainModule.GetType("Mirror.SyncListSTRUCT`1");
+            SyncListType = NetAssembly.MainModule.GetType("Mirror.SyncList`1");
+            SyncSetType = NetAssembly.MainModule.GetType("Mirror.SyncSet`1");
+            SyncDictionaryType = NetAssembly.MainModule.GetType("Mirror.SyncDictionary`2");
 
             NetworkBehaviourDirtyBitsReference = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "syncVarDirtyBits");
 
@@ -1172,19 +885,21 @@ namespace Mirror.Weaver
                 { doubleType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadDouble") },
                 { boolType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadBoolean") },
                 { stringType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadString") },
-                { int64Type.FullName, NetworkReaderReadPacked64 },
-                { uint64Type.FullName, NetworkReaderReadPacked64 },
-                { int32Type.FullName, NetworkReaderReadPacked32 },
-                { uint32Type.FullName, NetworkReaderReadPacked32 },
-                { int16Type.FullName, NetworkReaderReadPacked32 },
-                { uint16Type.FullName, NetworkReaderReadPacked32 },
-                { byteType.FullName, NetworkReaderReadPacked32 },
-                { sbyteType.FullName, NetworkReaderReadPacked32 },
-                { charType.FullName, NetworkReaderReadPacked32 },
+                { int64Type.FullName, NetworkReaderReadPackedInt64 },
+                { uint64Type.FullName, NetworkReaderReadPackedUInt64 },
+                { int32Type.FullName, NetworkReaderReadPackedInt32 },
+                { uint32Type.FullName, NetworkReaderReadPackedUInt32 },
+                { int16Type.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadInt16") },
+                { uint16Type.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadUInt16") },
+                { byteType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadByte") },
+                { sbyteType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadSByte") },
+                { charType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadChar") },
                 { decimalType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadDecimal") },
                 { vector2Type.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadVector2") },
                 { vector3Type.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadVector3") },
                 { vector4Type.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadVector4") },
+                { vector2IntType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadVector2Int") },
+                { vector3IntType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadVector3Int") },
                 { colorType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadColor") },
                 { color32Type.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadColor32") },
                 { quaternionType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadQuaternion") },
@@ -1208,19 +923,21 @@ namespace Mirror.Weaver
                 { doubleType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", doubleType) },
                 { boolType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", boolType) },
                 { stringType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", stringType) },
-                { int64Type.FullName, NetworkWriterWritePacked64 },
-                { uint64Type.FullName, NetworkWriterWritePacked64 },
-                { int32Type.FullName, NetworkWriterWritePacked32 },
-                { uint32Type.FullName, NetworkWriterWritePacked32 },
-                { int16Type.FullName, NetworkWriterWritePacked32 },
-                { uint16Type.FullName, NetworkWriterWritePacked32 },
-                { byteType.FullName, NetworkWriterWritePacked32 },
-                { sbyteType.FullName, NetworkWriterWritePacked32 },
-                { charType.FullName, NetworkWriterWritePacked32 },
+                { int64Type.FullName, NetworkWriterWritePackedInt64 },
+                { uint64Type.FullName, NetworkWriterWritePackedUInt64 },
+                { int32Type.FullName, NetworkWriterWritePackedInt32 },
+                { uint32Type.FullName, NetworkWriterWritePackedUInt32 },
+                { int16Type.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", int16Type) },
+                { uint16Type.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", uint16Type) },
+                { byteType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", byteType) },
+                { sbyteType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", sbyteType) },
+                { charType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", charType) },
                 { decimalType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", decimalType) },
                 { vector2Type.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", vector2Type) },
                 { vector3Type.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", vector3Type) },
                 { vector4Type.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", vector4Type) },
+                { vector2IntType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", vector2IntType) },
+                { vector3IntType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", vector3IntType) },
                 { colorType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", colorType) },
                 { color32Type.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", color32Type) },
                 { quaternionType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", quaternionType) },
@@ -1236,7 +953,7 @@ namespace Mirror.Weaver
             };
         }
 
-        static bool IsNetworkBehaviour(TypeDefinition td)
+        public static bool IsNetworkBehaviour(TypeDefinition td)
         {
             return td.IsDerivedFrom(NetworkBehaviourType);
         }
@@ -1347,7 +1064,7 @@ namespace Mirror.Weaver
             return didWork;
         }
 
-        static bool CheckSyncListStruct(TypeDefinition td)
+        static bool CheckSyncList(TypeDefinition td)
         {
             if (!td.IsClass)
                 return false;
@@ -1358,9 +1075,21 @@ namespace Mirror.Weaver
             TypeReference parent = td.BaseType;
             while (parent != null)
             {
-                if (parent.FullName.StartsWith(SyncListStructType.FullName))
+                if (parent.FullName.StartsWith(SyncListType.FullName))
                 {
-                    SyncListStructProcessor.Process(td);
+                    SyncListProcessor.Process(td);
+                    didWork = true;
+                    break;
+                }
+                else if (parent.FullName.StartsWith(SyncSetType.FullName))
+                {
+                    SyncListProcessor.Process(td);
+                    didWork = true;
+                    break;
+                }
+                else if (parent.FullName.StartsWith(SyncDictionaryType.FullName))
+                {
+                    SyncDictionaryProcessor.Process(td);
                     didWork = true;
                     break;
                 }
@@ -1379,7 +1108,7 @@ namespace Mirror.Weaver
             // check for embedded types
             foreach (TypeDefinition embedded in td.NestedTypes)
             {
-                didWork |= CheckSyncListStruct(embedded);
+                didWork |= CheckSyncList(embedded);
             }
 
             return didWork;
@@ -1389,7 +1118,6 @@ namespace Mirror.Weaver
         {
             ReaderParameters readParams = Helpers.ReaderParameters(assName, dependencies, assemblyResolver, unityEngineDLLPath, mirrorNetDLLPath);
 
-            string pdbToDelete = null;
             using (CurrentAssembly = AssemblyDefinition.ReadAssembly(assName, readParams))
             {
                 SetupTargetTypes();
@@ -1414,7 +1142,7 @@ namespace Mirror.Weaver
                             {
                                 if (pass == 0)
                                 {
-                                    didWork |= CheckSyncListStruct(td);
+                                    didWork |= CheckSyncList(td);
                                 }
                                 else
                                 {
@@ -1470,27 +1198,11 @@ namespace Mirror.Weaver
 
                     WriterParameters writeParams = Helpers.GetWriterParameters(readParams);
                     CurrentAssembly.Write(dest, writeParams);
-
-                    // PdbWriterProvider uses ISymUnmanagedWriter2 COM interface but Mono can't invoke a method on it and crashes (actually it first throws the following exception and then crashes).
-                    // One solution would be to convert UNetWeaver to exe file and run it on .NET on Windows (I have tested that and it works).
-                    // However it's much more simple to just write mdb file.
-                    // System.NullReferenceException: Object reference not set to an instance of an object
-                    //   at(wrapper cominterop - invoke) Mono.Cecil.Pdb.ISymUnmanagedWriter2:DefineDocument(string, System.Guid &, System.Guid &, System.Guid &, Mono.Cecil.Pdb.ISymUnmanagedDocumentWriter &)
-                    //   at Mono.Cecil.Pdb.SymWriter.DefineDocument(System.String url, Guid language, Guid languageVendor, Guid documentType)[0x00000] in < filename unknown >:0
-                    if (writeParams.SymbolWriterProvider is PdbWriterProvider)
-                    {
-                        writeParams.SymbolWriterProvider = new MdbWriterProvider();
-                        // old pdb file is out of date so delete it. symbols will be stored in mdb
-                        pdbToDelete = Path.ChangeExtension(assName, ".pdb");
-                    }
                 }
 
                 if (CurrentAssembly.MainModule.SymbolReader != null)
                     CurrentAssembly.MainModule.SymbolReader.Dispose();
             }
-
-            if (pdbToDelete != null)
-                File.Delete(pdbToDelete);
 
             return true;
         }

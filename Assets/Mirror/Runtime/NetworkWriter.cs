@@ -100,12 +100,26 @@ namespace Mirror
             WriteBytesAndSize(buffer, 0, buffer != null ? buffer.Length : 0);
         }
 
+        // zigzag encoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        public void WritePackedInt32(int i)
+        {
+            uint zigzagged = (uint)((i >> 31) ^ (i << 1));
+            WritePackedUInt32(zigzagged);
+        }
+
         // http://sqlite.org/src4/doc/trunk/www/varint.wiki
         public void WritePackedUInt32(uint value)
         {
             // for 32 bit values WritePackedUInt64 writes the
             // same exact thing bit by bit
             WritePackedUInt64(value);
+        }
+
+        // zigzag encoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        public void WritePackedInt64(long i)
+        {
+            ulong zigzagged = (ulong)((i >> 63) ^ (i << 1));
+            WritePackedUInt64(zigzagged);
         }
 
         public void WritePackedUInt64(ulong value)
@@ -212,6 +226,19 @@ namespace Mirror
             Write(value.y);
             Write(value.z);
             Write(value.w);
+        }
+
+        public void Write(Vector2Int value)
+        {
+            WritePackedInt32(value.x);
+            WritePackedInt32(value.y);
+        }
+
+        public void Write(Vector3Int value)
+        {
+            WritePackedInt32(value.x);
+            WritePackedInt32(value.y);
+            WritePackedInt32(value.z);
         }
 
         public void Write(Color value)
@@ -331,7 +358,7 @@ namespace Mirror
             }
         }
 
-        public void Write(MessageBase msg)
+        public void Write<T>(T msg) where T : IMessageBase
         {
             msg.Serialize(this);
         }
