@@ -87,9 +87,12 @@ namespace Mirror
         }
 
         // headless mode detection
+        public static bool isHeadless => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
+
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("This is a static property now...use `isHeadless` instead of `IsHeadless()`.  This method will be removed by summer 2019.")]
         public static bool IsHeadless()
         {
-            return SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
+            return isHeadless;
         }
 
         void InitializeSingleton()
@@ -132,7 +135,7 @@ namespace Mirror
             // some transports might not be ready until Start.
             //
             // (tick rate is applied in StartServer!)
-            if (IsHeadless() && startOnHeadless)
+            if (isHeadless && startOnHeadless)
             {
                 StartServer();
             }
@@ -219,7 +222,7 @@ namespace Mirror
             }
         }
 
-        internal void RegisterServerMessages()
+        void RegisterServerMessages()
         {
             NetworkServer.RegisterHandler<ConnectMessage>(OnServerConnectInternal);
             NetworkServer.RegisterHandler<DisconnectMessage>(OnServerDisconnectInternal);
@@ -235,7 +238,7 @@ namespace Mirror
             // * if not in Editor (it doesn't work in the Editor)
             // * if not in Host mode
 #if !UNITY_EDITOR
-            if (!NetworkClient.active)
+            if (!NetworkClient.active && isHeadless)
             {
                 Application.targetFrameRate = serverTickRate;
                 Debug.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
@@ -287,7 +290,7 @@ namespace Mirror
             return true;
         }
 
-        internal void RegisterClientMessages()
+        void RegisterClientMessages()
         {
             NetworkClient.RegisterHandler<ConnectMessage>(OnClientConnectInternal);
             NetworkClient.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal);
@@ -424,7 +427,7 @@ namespace Mirror
             }
         }
 
-        internal void ClientChangeScene(string newSceneName, bool forceReload)
+        void ClientChangeScene(string newSceneName, bool forceReload)
         {
             if (string.IsNullOrEmpty(newSceneName))
             {
@@ -484,7 +487,7 @@ namespace Mirror
             }
         }
 
-        internal static void UpdateScene()
+        static void UpdateScene()
         {
             if (singleton != null && loadingSceneAsync != null && loadingSceneAsync.isDone)
             {
@@ -505,6 +508,12 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("RegisterStartPosition: (" + start.gameObject.name + ") " + start.position);
             startPositions.Add(start);
+
+            // reorder the list so that round-robin spawning uses the start positions
+            // in hierarchy order.  This assumes all objects with NetworkStartPosition
+            // component are siblings, either in the scene root or together as children
+            // under a single parent in the scene.
+            startPositions = startPositions.OrderBy(transform => transform.GetSiblingIndex()).ToList();
         }
 
         public static void UnRegisterStartPosition(Transform start)
@@ -533,7 +542,7 @@ namespace Mirror
         }
 
         #region Server Internal Message Handlers
-        internal void OnServerConnectInternal(NetworkConnection conn, ConnectMessage connectMsg)
+        void OnServerConnectInternal(NetworkConnection conn, ConnectMessage connectMsg)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerConnectInternal");
 
@@ -545,19 +554,19 @@ namespace Mirror
             OnServerConnect(conn);
         }
 
-        internal void OnServerDisconnectInternal(NetworkConnection conn, DisconnectMessage msg)
+        void OnServerDisconnectInternal(NetworkConnection conn, DisconnectMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerDisconnectInternal");
             OnServerDisconnect(conn);
         }
 
-        internal void OnServerReadyMessageInternal(NetworkConnection conn, ReadyMessage msg)
+        void OnServerReadyMessageInternal(NetworkConnection conn, ReadyMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerReadyMessageInternal");
             OnServerReady(conn);
         }
 
-        internal void OnServerRemovePlayerMessageInternal(NetworkConnection conn, RemovePlayerMessage msg)
+        void OnServerRemovePlayerMessageInternal(NetworkConnection conn, RemovePlayerMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerRemovePlayerMessageInternal");
 
@@ -568,7 +577,7 @@ namespace Mirror
             }
         }
 
-        internal void OnServerErrorInternal(NetworkConnection conn, ErrorMessage msg)
+        void OnServerErrorInternal(NetworkConnection conn, ErrorMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerErrorInternal");
             OnServerError(conn, msg.value);
@@ -576,7 +585,7 @@ namespace Mirror
         #endregion
 
         #region Client Internal Message Handlers
-        internal void OnClientConnectInternal(NetworkConnection conn, ConnectMessage message)
+        void OnClientConnectInternal(NetworkConnection conn, ConnectMessage message)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientConnectInternal");
 
@@ -593,13 +602,13 @@ namespace Mirror
             }
         }
 
-        internal void OnClientDisconnectInternal(NetworkConnection conn, DisconnectMessage msg)
+        void OnClientDisconnectInternal(NetworkConnection conn, DisconnectMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientDisconnectInternal");
             OnClientDisconnect(conn);
         }
 
-        internal void OnClientNotReadyMessageInternal(NetworkConnection conn, NotReadyMessage msg)
+        void OnClientNotReadyMessageInternal(NetworkConnection conn, NotReadyMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientNotReadyMessageInternal");
 
@@ -609,13 +618,13 @@ namespace Mirror
             // NOTE: clientReadyConnection is not set here! don't want OnClientConnect to be invoked again after scene changes.
         }
 
-        internal void OnClientErrorInternal(NetworkConnection conn, ErrorMessage msg)
+        void OnClientErrorInternal(NetworkConnection conn, ErrorMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager:OnClientErrorInternal");
             OnClientError(conn, msg.value);
         }
 
-        internal void OnClientSceneInternal(NetworkConnection conn, SceneMessage msg)
+        void OnClientSceneInternal(NetworkConnection conn, SceneMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientSceneInternal");
 
