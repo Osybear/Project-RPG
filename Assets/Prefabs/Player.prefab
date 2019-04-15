@@ -838,7 +838,7 @@ MonoBehaviour:
   xInputText: {fileID: 2034719620}
   zInputText: {fileID: 904913223}
   velocityText: {fileID: 1942181261}
-  swingColliderPrefab: {fileID: 4105243597316821465, guid: 8be1727a8ac45c84b878a698b30afac1,
+  attackTrigger: {fileID: 8045669349679583283, guid: 8b331430e56adae44aa12611a3466989,
     type: 3}
 --- !u!114 &928184501147737991
 MonoBehaviour:
@@ -852,8 +852,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ServerOnly: 0
-  m_LocalPlayerAuthority: 1
+  serverOnly: 0
+  localPlayerAuthority: 1
   m_AssetId: 768d060955f3cd248beae95f24169b13
   m_SceneId: 0
 --- !u!114 &5399081007477759514
@@ -1024,8 +1024,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3606966303190805665}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.455, z: 0.523}
-  m_LocalScale: {x: 0.33288, y: 0.33417, z: 1}
+  m_LocalPosition: {x: 0, y: 0.599, z: 0.308}
+  m_LocalScale: {x: 0.5939665, y: 0.18470915, z: 0.47438}
   m_Children: []
   m_Father: {fileID: 1616780849042172473}
   m_RootOrder: 2
@@ -1055,7 +1055,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 20600a468ec5e294795cd09a7acbbf2b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
