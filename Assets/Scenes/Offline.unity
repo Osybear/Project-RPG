@@ -700,6 +700,8 @@ MonoBehaviour:
     m_TypeName: Mirror.UnityEventInt, Mirror, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   port: 7777
   NoDelay: 1
+  serverMaxMessageSize: 16384
+  clientMaxMessageSize: 16384
 --- !u!114 &772758122
 MonoBehaviour:
   m_ObjectHideFlags: 0

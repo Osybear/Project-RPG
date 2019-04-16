@@ -61,7 +61,7 @@ public class PlayerManager : NetworkBehaviour
             this.transform.LookAt(hitPoint);
         }
     }   
-
+ 
     public void Swing() {
         if(Input.GetMouseButtonDown(0) && !isAttacking) {
             isAttacking = true;
