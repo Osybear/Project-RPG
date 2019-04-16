@@ -15,9 +15,7 @@ public class PlayerManager : NetworkBehaviour
     public TextMeshProUGUI zInputText;
     public TextMeshProUGUI velocityText;
     public Plane centerPlane;
-    public GameObject attackTrigger;
-    public bool isAttacking;
-
+    
     private void Awake() {
         centerPlane = new Plane(Vector3.up, -1.5f);
 
@@ -36,7 +34,6 @@ public class PlayerManager : NetworkBehaviour
             return;
         PlayerMovement();
         LookAtRaycast();
-        Swing();
     }
 
     public void PlayerMovement() {  
@@ -61,12 +58,4 @@ public class PlayerManager : NetworkBehaviour
             this.transform.LookAt(hitPoint);
         }
     }   
- 
-    public void Swing() {
-        if(Input.GetMouseButtonDown(0) && !isAttacking) {
-            isAttacking = true;
-            GameObject trigger = Instantiate(attackTrigger, this.transform, false);
-            trigger.transform.GetChild(0).GetComponent<AttackTrigger>().playerManager = this;
-        }
-    }
 }

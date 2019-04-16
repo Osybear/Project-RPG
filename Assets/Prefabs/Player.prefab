@@ -720,6 +720,7 @@ GameObject:
   - component: {fileID: 5399081007477759514}
   - component: {fileID: 655332226}
   - component: {fileID: 655332231}
+  - component: {fileID: 1957108855972297429}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -838,8 +839,6 @@ MonoBehaviour:
   xInputText: {fileID: 2034719620}
   zInputText: {fileID: 904913223}
   velocityText: {fileID: 1942181261}
-  attackTrigger: {fileID: 8045669349679583283, guid: 8b331430e56adae44aa12611a3466989,
-    type: 3}
 --- !u!114 &928184501147737991
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -901,6 +900,23 @@ MonoBehaviour:
   mainCamera: {fileID: 1616780850022186400}
   healthBar: {fileID: 6638763622360899494}
   player: {fileID: 1616780849042172473}
+--- !u!114 &1957108855972297429
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1616780849042172467}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9840b114a4e0d9a4ca5a3d3c3700ea78, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 512
+  radius: 2.5
+  maxAngle: 90
 --- !u!1 &1616780850022186430
 GameObject:
   m_ObjectHideFlags: 0
