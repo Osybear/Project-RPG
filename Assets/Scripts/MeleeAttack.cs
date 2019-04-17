@@ -2,31 +2,33 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
+using System;
 
-public class MeleeAttack : MonoBehaviour
+public class MeleeAttack : NetworkBehaviour
 {
     public LayerMask layerMask;
     public float radius;
     public float maxAngle;
 
     private void Update() {
-        //if(!isLocalPlayer)
-        //    return;
-        SwingAttack();
-    }
-
-    private void SwingAttack() {
-        if(!Input.GetMouseButtonDown(0))
+        if(!isLocalPlayer)
             return;
-        Debug.Log("Swing Attack");
+
+        if(Input.GetMouseButtonDown(0))
+            CmdSwingAttack();
+    }
+    
+    [Command]
+    private void CmdSwingAttack() {
         GameObject enemy = GetNearestEnemy();
-        
-        if(enemy == null)
+
+        if(enemy == null || enemy == this.gameObject)
             return;
         
         Debug.Log("Enemy Hit : " + enemy.name);
     }
 
+    [Server]
     private GameObject GetNearestEnemy() {
         Collider[] results = new Collider[25];
         int hits = Physics.OverlapSphereNonAlloc(transform.position, radius, results, layerMask, QueryTriggerInteraction.UseGlobal);
@@ -44,10 +46,10 @@ public class MeleeAttack : MonoBehaviour
                 nearestEnemyAngle = angle;
             }
         }
-        Debug.Log("Angle : " + nearestEnemyAngle);
+
         if(nearestEnemy == null || nearestEnemyAngle > maxAngle)
             return null; 
-        Debug.Log("Nearest Enemy Angle : " + nearestEnemyAngle);
+
         return nearestEnemy;
     }
 
@@ -55,4 +57,5 @@ public class MeleeAttack : MonoBehaviour
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, radius);
     }
+
 }
