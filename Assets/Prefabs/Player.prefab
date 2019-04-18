@@ -916,8 +916,9 @@ MonoBehaviour:
   layerMask:
     serializedVersion: 2
     m_Bits: 512
-  radius: 2.5
+  radius: 5
   maxAngle: 90
+  damage: 1
 --- !u!1 &1616780850022186430
 GameObject:
   m_ObjectHideFlags: 0

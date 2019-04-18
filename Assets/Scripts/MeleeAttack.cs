@@ -9,23 +9,31 @@ public class MeleeAttack : NetworkBehaviour
     public LayerMask layerMask;
     public float radius;
     public float maxAngle;
+    public int damage;
 
     private void Update() {
         if(!isLocalPlayer)
             return;
 
-        if(Input.GetMouseButtonDown(0))
+        if(Input.GetMouseButtonDown(0)) {
             CmdSwingAttack();
+        }
     }
     
     [Command]
     private void CmdSwingAttack() {
         GameObject enemy = GetNearestEnemy();
 
-        if(enemy == null || enemy == this.gameObject)
+        if(enemy == null)
             return;
-        
-        Debug.Log("Enemy Hit : " + enemy.name);
+
+        Health health = enemy.GetComponent<Health>();
+        if(health == null)
+            return;
+
+        Debug.Log("Enemy Name : " + enemy.name);
+        Debug.Log("Health Component : " + health);
+        health.TakeDamage(damage);
     }
 
     [Server]
@@ -41,7 +49,7 @@ public class MeleeAttack : NetworkBehaviour
             float b = radius;
             float c = Vector3.Distance(transform.position, enemy.transform.position);
             float angle = Mathf.Acos(((b * b) + (c * c) - (a * a)) / (2 * b * c)) * Mathf.Rad2Deg;
-            if(nearestEnemy == null || angle < nearestEnemyAngle) {
+            if(enemy != this.gameObject || nearestEnemy == null || angle < nearestEnemyAngle) {
                 nearestEnemy = enemy;
                 nearestEnemyAngle = angle;
             }
@@ -53,9 +61,10 @@ public class MeleeAttack : NetworkBehaviour
         return nearestEnemy;
     }
 
+    
     private void OnDrawGizmos() {
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, radius);
     }
-
+    
 }
