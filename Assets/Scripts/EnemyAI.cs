@@ -22,6 +22,6 @@ public class EnemyAI : MonoBehaviour
             
         }
 
-        return nearestEnemy;
+        return null;
     }
 }
