@@ -18,7 +18,6 @@ public class PlayerManager : NetworkBehaviour
     
     private void Awake() {
         centerPlane = new Plane(Vector3.up, -1.5f);
-
     }
 
     private void Start() {
