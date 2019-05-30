@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 using Mirror;
 using UnityEngine.SceneManagement;
 
@@ -12,9 +11,6 @@ public class PlayerController : NetworkBehaviour
     public Animator animator; 
     [Range(0,100)]
     public float speed;
-    public TextMeshProUGUI xInputText;
-    public TextMeshProUGUI zInputText;
-    public TextMeshProUGUI velocityText;
     public Plane centerPlane;
     
     private void Awake() {
