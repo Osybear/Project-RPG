@@ -5,10 +5,11 @@ using TMPro;
 using Mirror;
 using UnityEngine.SceneManagement;
 
-public class PlayerManager : NetworkBehaviour 
+public class PlayerController : NetworkBehaviour 
 {
     public new Camera camera;
     public new Rigidbody rigidbody;
+    public Animator animator; 
     [Range(0,100)]
     public float speed;
     public TextMeshProUGUI xInputText;
@@ -31,29 +32,33 @@ public class PlayerManager : NetworkBehaviour
     private void Update() {
         if(!isLocalPlayer)
             return;
+        if(Input.GetMouseButtonDown(0)) {
+            animator.SetTrigger("Attack");
+        }
         PlayerMovement();
         LookAtRaycast();
     }
 
-    public void PlayerMovement() {  
-        float x = Input.GetAxisRaw("Horizontal");
-        float z = Input.GetAxisRaw("Vertical"); 
-        xInputText.text = x.ToString();
-        zInputText.text = z.ToString();
+    private void PlayerMovement() {
+        float horizontal = Input.GetAxisRaw("Horizontal");
+        float vertical = Input.GetAxisRaw("Vertical"); 
+        
+        Vector3 globalDirection = new Vector3(horizontal, 0, vertical);
+        rigidbody.velocity = globalDirection * speed;
+        Vector3 localDirection = transform.InverseTransformDirection(globalDirection);
 
-        Vector3 direction = new Vector3(x, 0 ,z);
-        rigidbody.velocity = direction * speed;
-        velocityText.text = rigidbody.velocity.ToString();
+        animator.SetFloat("Horizontal", localDirection.x);
+        animator.SetFloat("Vertical", localDirection.z);
+        animator.SetFloat("MotionSpeed", speed);
+        animator.SetFloat("Velocity", rigidbody.velocity.magnitude);
     }
 
     public void LookAtRaycast() {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         float enter = 0.0f;
         if (centerPlane.Raycast(ray, out enter)) {
-            //Get the point that is clicked
             Vector3 hitPoint = ray.GetPoint(enter);
             hitPoint.y = 1.5f;
-            //Move your cube GameObject to the point where you clicked
             this.transform.LookAt(hitPoint);
         }
     }   

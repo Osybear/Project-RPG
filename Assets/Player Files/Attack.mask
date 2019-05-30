@@ -6,8 +6,8 @@ AvatarMask:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Swing Mask
-  m_Mask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+  m_Name: Attack
+  m_Mask: 00000000010000000100000000000000000000000100000001000000010000000100000000000000000000000100000001000000
   m_Elements:
   - m_Path: 
     m_Weight: 1
@@ -16,11 +16,11 @@ AvatarMask:
   - m_Path: Armature/hips
     m_Weight: 1
   - m_Path: Armature/hips/abdomen
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Armature/hips/abdomen/abdomen2
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Armature/hips/abdomen/abdomen2/chest
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Armature/hips/abdomen/abdomen2/chest/neck
     m_Weight: 1
   - m_Path: Armature/hips/abdomen/abdomen2/chest/neck/head
@@ -124,7 +124,7 @@ AvatarMask:
   - m_Path: Armature/hips/abdomen/abdomen2/chest/shoulder.R/upper_arm.R/forearm.R/hand.R/thumb.01.R/thumb.02.R/thumb.03.R/thumb.03.R_end
     m_Weight: 1
   - m_Path: Armature/hips/thigh.L
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Armature/hips/thigh.L/shin.L
     m_Weight: 1
   - m_Path: Armature/hips/thigh.L/shin.L/foot.L
@@ -134,7 +134,7 @@ AvatarMask:
   - m_Path: Armature/hips/thigh.L/shin.L/foot.L/toe.L/toe.L_end
     m_Weight: 1
   - m_Path: Armature/hips/thigh.R
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Armature/hips/thigh.R/shin.R
     m_Weight: 1
   - m_Path: Armature/hips/thigh.R/shin.R/foot.R
