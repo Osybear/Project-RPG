@@ -4,7 +4,7 @@ using UnityEngine;
 using Mirror;
 using System;
 
-public class MeleeAttack : NetworkBehaviour
+public class AttackController : NetworkBehaviour
 {
     public LayerMask layerMask;
     public float radius;
@@ -22,43 +22,49 @@ public class MeleeAttack : NetworkBehaviour
     
     [Command]
     private void CmdSwingAttack() {
-        GameObject enemy = GetNearestEnemy();
+        GameObject destructible = GetDestructibleObject();
 
-        if(enemy == null)
+        if(destructible == null)
             return;
 
-        Health health = enemy.GetComponent<Health>();
-        if(health == null)
+        Health health = destructible.GetComponent<Health>();
+        if(health == null) {
+            Debug.Log("Object : " + destructible.name + " does not have a health component. ");
             return;
+        }
 
-        Debug.Log("Enemy Name : " + enemy.name);
+        Debug.Log("Destructable Object : " + destructible.name);
         Debug.Log("Health Component : " + health);
         health.TakeDamage(damage);
     }
 
     [Server]
-    private GameObject GetNearestEnemy() {
+    private GameObject GetDestructibleObject() {
         Collider[] results = new Collider[25];
         int hits = Physics.OverlapSphereNonAlloc(transform.position, radius, results, layerMask, QueryTriggerInteraction.UseGlobal);
-        GameObject nearestEnemy = null;
+        GameObject nearestObj = null;
         float nearestEnemyAngle = float.MaxValue;
 
         for(int i = 0; i < hits; i++) {
-            GameObject enemy = results[i].transform.gameObject;
-            float a = Vector3.Distance(transform.position + (transform.forward * radius), enemy.transform.position);
+            GameObject destructibleObj = results[i].transform.gameObject;
+            if(destructibleObj.Equals(gameObject))
+                continue;
+
+            float a = Vector3.Distance(transform.position + (transform.forward * radius), destructibleObj.transform.position);
             float b = radius;
-            float c = Vector3.Distance(transform.position, enemy.transform.position);
+            float c = Vector3.Distance(transform.position, destructibleObj.transform.position);
             float angle = Mathf.Acos(((b * b) + (c * c) - (a * a)) / (2 * b * c)) * Mathf.Rad2Deg;
-            if(enemy != this.gameObject || nearestEnemy == null || angle < nearestEnemyAngle) {
-                nearestEnemy = enemy;
+
+            if(angle < nearestEnemyAngle) {
+                nearestObj = destructibleObj;
                 nearestEnemyAngle = angle;
             }
         }
 
-        if(nearestEnemy == null || nearestEnemyAngle > maxAngle)
+        if(nearestObj == null || nearestEnemyAngle > maxAngle)
             return null; 
 
-        return nearestEnemy;
+        return nearestObj;
     }
 
     

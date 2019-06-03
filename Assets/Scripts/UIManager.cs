@@ -8,16 +8,21 @@ public class UIManager : NetworkBehaviour {
     public Camera mainCamera;
     public RectTransform healthBar;
     public Transform player;
-
+    public Vector3 offset;
+    
     private void Start() {
         if(!isLocalPlayer) {
-            mainCamera.gameObject.SetActive(false);
+            // on the server this will return null since there is no local player main camera activated
             mainCamera = Camera.main;
-        }    
+        }
+
+        if(mainCamera != null)
+            offset = healthBar.position - mainCamera.WorldToScreenPoint(player.position);
     }
 
     private void FixedUpdate() {
         if(mainCamera != null)
-            healthBar.position = mainCamera.WorldToScreenPoint(player.position);          
+            healthBar.position = mainCamera.WorldToScreenPoint(player.position) + offset;          
     }
+
 }
