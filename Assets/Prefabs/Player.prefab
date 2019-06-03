@@ -187,7 +187,7 @@ GameObject:
   - component: {fileID: 1616780849042172471}
   - component: {fileID: 1616780849042172470}
   - component: {fileID: 1616780849042172469}
-  - component: {fileID: 2849549682292580049}
+  - component: {fileID: 7304294677727511631}
   - component: {fileID: 928184501147737991}
   - component: {fileID: 5399081007477759514}
   - component: {fileID: 655332226}
@@ -294,25 +294,20 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
---- !u!95 &2849549682292580049
-Animator:
-  serializedVersion: 3
+--- !u!114 &7304294677727511631
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1616780849042172467}
   m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 7dce3b46a0561144a98a434821950ef4, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f6f3bf89aa97405989c802ba270f815, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncInterval: 0.1
+  animator: {fileID: 2891460065714087985}
 --- !u!114 &928184501147737991
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -408,7 +403,7 @@ MonoBehaviour:
   syncInterval: 0.1
   camera: {fileID: 1616780850022186400}
   rigidbody: {fileID: 1616780849042172469}
-  animator: {fileID: 2849549682292580049}
+  animator: {fileID: 2891460065714087985}
   speed: 1
 --- !u!1 &1616780850022186430
 GameObject:
@@ -455,10 +450,9 @@ Camera:
   m_ClearFlags: 1
   m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
   m_projectionMatrixMode: 1
-  m_GateFitMode: 2
-  m_FOVAxisMode: 0
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0, y: 0}
+  m_GateFitMode: 2
   m_FocalLength: 50
   m_NormalizedViewPortRect:
     serializedVersion: 2
@@ -745,6 +739,22 @@ PrefabInstance:
       propertyPath: m_LocalScale.z
       value: 0.34
       objectReference: {fileID: 0}
+    - target: {fileID: 9500000, guid: ea5b351863ac19944aea4ba810591dad, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 7dce3b46a0561144a98a434821950ef4, type: 2}
+    - target: {fileID: 9500000, guid: ea5b351863ac19944aea4ba810591dad, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400138, guid: ea5b351863ac19944aea4ba810591dad, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.008888965
+      objectReference: {fileID: 0}
+    - target: {fileID: 400138, guid: ea5b351863ac19944aea4ba810591dad, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.0033901646
+      objectReference: {fileID: 0}
     - target: {fileID: 400134, guid: ea5b351863ac19944aea4ba810591dad, type: 3}
       propertyPath: m_LocalRotation.x
       value: -0.564603
@@ -761,27 +771,17 @@ PrefabInstance:
       propertyPath: m_LocalRotation.w
       value: 0.59548336
       objectReference: {fileID: 0}
-    - target: {fileID: 400138, guid: ea5b351863ac19944aea4ba810591dad, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0.008888965
-      objectReference: {fileID: 0}
-    - target: {fileID: 400138, guid: ea5b351863ac19944aea4ba810591dad, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.0033901646
-      objectReference: {fileID: 0}
-    - target: {fileID: 9500000, guid: ea5b351863ac19944aea4ba810591dad, type: 3}
-      propertyPath: m_Controller
-      value: 
-      objectReference: {fileID: 9100000, guid: 7dce3b46a0561144a98a434821950ef4, type: 2}
-    - target: {fileID: 9500000, guid: ea5b351863ac19944aea4ba810591dad, type: 3}
-      propertyPath: m_ApplyRootMotion
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ea5b351863ac19944aea4ba810591dad, type: 3}
 --- !u!4 &2891460065721272255 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400110, guid: ea5b351863ac19944aea4ba810591dad,
+    type: 3}
+  m_PrefabInstance: {fileID: 2891460065721408849}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &2891460065714087985 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 9500000, guid: ea5b351863ac19944aea4ba810591dad,
     type: 3}
   m_PrefabInstance: {fileID: 2891460065721408849}
   m_PrefabAsset: {fileID: 0}
