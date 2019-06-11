@@ -570,5 +570,9 @@ namespace Mirror
         {
             return true;
         }
+
+    public float GetHorizontalInput() {
+        return Input.GetAxisRaw("Horizontal");
+    }
     }
 }
