@@ -1,0 +1,23 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Mirror;
+using UnityEngine.SceneManagement;
+
+public class UIManager : NetworkBehaviour {
+    public Camera mainCamera;
+    public RectTransform healthBar;
+    public Transform player;
+
+    private void Start() {
+        if(!isLocalPlayer) {
+            mainCamera.gameObject.SetActive(false);
+            mainCamera = Camera.main;
+        }    
+    }
+
+    private void FixedUpdate() {
+        if(mainCamera != null)
+            healthBar.position = mainCamera.WorldToScreenPoint(player.position);          
+    }
+}

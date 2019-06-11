@@ -40,6 +40,6 @@ public class Health : NetworkBehaviour {
     private void RpcOnChangeHealth(int health) {
         currentHealth = health;
         healthBar.fillAmount = (float)health / maxHealth;
-        Debug.Log("Change Health Ammount : " + (maxHealth - health));
+        Debug.Log("Change Health Ammount" + (maxHealth - health));
     }
 }
