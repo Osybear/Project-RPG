@@ -11,7 +11,7 @@ public class LogIn : MonoBehaviour {
     public TMP_InputField passwordField;
 
     private void Awake() {
-        DontDestroyOnLoad(this);
+        networkManager = GameObject.FindObjectOfType<NetworkManager>();
         usernameField.text = "Osybear";
         passwordField.text = "password";
     }

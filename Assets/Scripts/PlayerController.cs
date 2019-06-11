@@ -6,8 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class PlayerController : NetworkBehaviour 
 {
-    public Camera camera;
-    public Rigidbody rigidbody;
+    public new Rigidbody rigidbody;
     public Animator animator; 
     [Range(0,100)]
     public float speed;
