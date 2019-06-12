@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 473841517}
   - component: {fileID: 2906369903097005634}
   m_Layer: 0
-  m_Name: World Canvas
+  m_Name: WorldCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -183,10 +183,9 @@ GameObject:
   - component: {fileID: 1616780849042172471}
   - component: {fileID: 1616780849042172470}
   - component: {fileID: 1616780849042172469}
-  - component: {fileID: 7304294677727511631}
-  - component: {fileID: 928184501147737991}
   - component: {fileID: 5399081007477759514}
-  - component: {fileID: 655332226}
+  - component: {fileID: 928184501147737991}
+  - component: {fileID: 7304294677727511631}
   - component: {fileID: 655332231}
   - component: {fileID: 7151534226994605617}
   - component: {fileID: 5802051669320054219}
@@ -291,7 +290,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
---- !u!114 &7304294677727511631
+--- !u!114 &5399081007477759514
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -300,11 +299,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1616780849042172467}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f6f3bf89aa97405989c802ba270f815, type: 3}
+  m_Script: {fileID: 11500000, guid: 2f74aedd71d9a4f55b3ce499326d45fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncInterval: 0.1
-  animator: {fileID: 2891460065714087985}
+  compressRotation: 1
 --- !u!114 &928184501147737991
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -321,7 +320,7 @@ MonoBehaviour:
   localPlayerAuthority: 1
   m_AssetId: 768d060955f3cd248beae95f24169b13
   m_SceneId: 0
---- !u!114 &5399081007477759514
+--- !u!114 &7304294677727511631
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -330,26 +329,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1616780849042172467}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f74aedd71d9a4f55b3ce499326d45fb, type: 3}
+  m_Script: {fileID: 11500000, guid: 7f6f3bf89aa97405989c802ba270f815, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncInterval: 0.1
-  compressRotation: 1
---- !u!114 &655332226
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1616780849042172467}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be6845e6bbe23204b93231b9b0bf9d12, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncInterval: 0.1
-  currentHealth: 100
-  healthBar: {fileID: 5873776620744854350}
+  animator: {fileID: 2891460065714087985}
 --- !u!114 &655332231
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -415,7 +399,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   syncInterval: 0.1
-  camera: {fileID: 1616780850022186400}
+  mainCamera: {fileID: 1616780850022186400}
   offset: {x: 0, y: 0, z: 0}
 --- !u!1 &1616780850022186430
 GameObject:
@@ -429,8 +413,8 @@ GameObject:
   - component: {fileID: 1616780850022186400}
   - component: {fileID: 1616780850022186431}
   m_Layer: 0
-  m_Name: Main Camera
-  m_TagString: MainCamera
+  m_Name: MainCamera
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
