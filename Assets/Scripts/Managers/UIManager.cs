@@ -16,6 +16,9 @@ public class UIManager : NetworkBehaviour {
     }
 
     private void Start() {
+        if(isServer)
+            return;
+        
         if(!isLocalPlayer) {
             statBarsCanvas = ClientScene.localPlayer.GetComponent<UIManager>().statBarsCanvas;
             healthBar.SetParent(statBarsCanvas);
@@ -33,6 +36,9 @@ public class UIManager : NetworkBehaviour {
         When the player disconnects dispose of anything that isnt a child 
     */
     private void OnDestroy() {
+        if(isServer)
+            return;
+            
         cameraController.localController.otherUIManager.Remove(this);
         Destroy(healthBar.gameObject);
     }

@@ -17,6 +17,9 @@ public class CameraController : NetworkBehaviour
     }
 
     private void Start() {
+        if(isServer)
+            return;
+
         if(!isLocalPlayer) {
             mainCamera.gameObject.SetActive(false);
             localController = ClientScene.localPlayer.GetComponent<CameraController>();
@@ -26,7 +29,7 @@ public class CameraController : NetworkBehaviour
         } 
 
         offset = mainCamera.transform.position - transform.position;
-        mainCamera.transform.parent = transform.parent;
+        mainCamera.transform.SetParent(null);
     }
 
     private void LateUpdate () {
