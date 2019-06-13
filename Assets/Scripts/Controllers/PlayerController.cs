@@ -6,7 +6,9 @@ using UnityEngine.SceneManagement;
 
 public class PlayerController : NetworkBehaviour 
 {   
+    private NetworkAnimator networkAnimator;
     private CameraController cameraController;
+
     public new Rigidbody rigidbody;
     public Animator animator; 
     [Range(0,100)]
@@ -15,6 +17,7 @@ public class PlayerController : NetworkBehaviour
     
     private void Awake() {
         cameraController = GetComponent<CameraController>();
+        networkAnimator = GetComponent<NetworkAnimator>();
         centerPlane = new Plane(Vector3.up, -1.5f);
     }
 
@@ -29,9 +32,11 @@ public class PlayerController : NetworkBehaviour
     private void Update() {
         if(!isLocalPlayer)
             return;
+
         if(Input.GetMouseButtonDown(0)) {
-            animator.SetTrigger("Attack");
+            networkAnimator.SetTrigger("Attack");
         }
+        
         PlayerMovement();
         LookAtRaycast();
     }
@@ -50,7 +55,7 @@ public class PlayerController : NetworkBehaviour
         animator.SetFloat("Velocity", rigidbody.velocity.magnitude);
     }
 
-    public void LookAtRaycast() {
+    private void LookAtRaycast() {
         Ray ray = cameraController.mainCamera.ScreenPointToRay(Input.mousePosition);
         float enter = 0.0f;
         if (centerPlane.Raycast(ray, out enter)) {
@@ -58,5 +63,7 @@ public class PlayerController : NetworkBehaviour
             hitPoint.y = 1.5f;
             this.transform.LookAt(hitPoint);
         }
-    }   
+    }
+
+
 }

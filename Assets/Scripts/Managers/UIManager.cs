@@ -32,14 +32,12 @@ public class UIManager : NetworkBehaviour {
         healthBar.position = cameraController.mainCamera.WorldToScreenPoint(player.position) + offset;    
     }
 
-    /*
-        When the player disconnects dispose of anything that isnt a child 
-    */
     private void OnDestroy() {
-        if(isServer)
-            return;
-            
-        cameraController.localController.otherUIManager.Remove(this);
+        if(isLocalPlayer) 
+            return;     
+
         Destroy(healthBar.gameObject);
+        if(cameraController.localController != null)
+            cameraController.localController.otherUIManager.Remove(this);   
     }
 }

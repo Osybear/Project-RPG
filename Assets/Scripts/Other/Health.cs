@@ -2,8 +2,8 @@
 using Mirror;
 using UnityEngine.UI;
 
-public class Health : NetworkBehaviour {
-
+public class Health : NetworkBehaviour 
+{
     public const int maxHealth = 100;
     public int currentHealth = maxHealth;
     public Image healthBar;
@@ -24,6 +24,7 @@ public class Health : NetworkBehaviour {
         currentHealth -= amount;
         if (currentHealth <= 0) {
             currentHealth = 0;
+            OnDeath();
         }
 
         RpcOnChangeHealth(currentHealth);
@@ -31,17 +32,28 @@ public class Health : NetworkBehaviour {
 
     [Command]
     private void CmdTakeHealth() {
-        OnDamage(2);
+        OnDamage(50);
     }
 
     [ClientRpc]
-    private void RpcOnChangeHealth(int health) {
-        currentHealth = health;
+    private void RpcOnChangeHealth(int currentHealth) {
+        this.currentHealth = currentHealth;
         SetHealthBar();
     }
 
     [Client]
     private void SetHealthBar() {
         healthBar.fillAmount = (float)currentHealth / maxHealth;
+    }
+
+    [Server]
+    private void OnDeath() {
+        RpcResetPosition();
+        currentHealth = maxHealth;
+        RpcOnChangeHealth(currentHealth);
+    }
+
+    [ClientRpc] private void RpcResetPosition() {
+        transform.position = NetworkManager.singleton.GetStartPosition().position;
     }
 }

@@ -4,12 +4,12 @@ using UnityEngine;
 using Mirror;
 
 public class CameraController : NetworkBehaviour
-{      
-    private UIManager UIManager;
+{     
     public Camera mainCamera;
     public Vector3 offset;
-    public CameraController localController;
 
+    private UIManager UIManager;
+    public CameraController localController;
     public List<UIManager> otherUIManager; // nonlocal UIManager 
 
     private void Awake() {
@@ -17,7 +17,7 @@ public class CameraController : NetworkBehaviour
     }
 
     private void Start() {
-        if(isServer)
+        if(isServer && !Application.isEditor)
             return;
 
         if(!isLocalPlayer) {

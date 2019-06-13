@@ -118,6 +118,7 @@ GameObject:
   - component: {fileID: 7151534226994605617}
   - component: {fileID: 5802051669320054219}
   - component: {fileID: 1063331071772310862}
+  - component: {fileID: 1664180448163673629}
   m_Layer: 9
   m_Name: Player
   m_TagString: Untagged
@@ -331,6 +332,21 @@ MonoBehaviour:
   offset: {x: 0, y: 0, z: 0}
   localController: {fileID: 0}
   otherUIManager: []
+--- !u!114 &1664180448163673629
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1616780849042172467}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b058d11cae22024ca416ba41d0eec7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncInterval: 0.1
+  currentHealth: 100
+  healthBar: {fileID: 7380120988181557426}
 --- !u!1 &1616780850022186430
 GameObject:
   m_ObjectHideFlags: 0
@@ -413,25 +429,6 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1616780850022186430}
   m_Enabled: 1
---- !u!95 &1464687015
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2891460065721375323}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &3606966303190805665
 GameObject:
   m_ObjectHideFlags: 0
@@ -739,6 +736,10 @@ PrefabInstance:
       propertyPath: m_LocalScale.z
       value: 0.34
       objectReference: {fileID: 0}
+    - target: {fileID: 13700000, guid: ea5b351863ac19944aea4ba810591dad, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 400138, guid: ea5b351863ac19944aea4ba810591dad, type: 3}
       propertyPath: m_LocalRotation.y
       value: 0.008888965
@@ -774,12 +775,6 @@ Transform:
 --- !u!95 &2891460065714087985 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 9500000, guid: ea5b351863ac19944aea4ba810591dad,
-    type: 3}
-  m_PrefabInstance: {fileID: 2891460065721408849}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &2891460065721375323 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 100106, guid: ea5b351863ac19944aea4ba810591dad,
     type: 3}
   m_PrefabInstance: {fileID: 2891460065721408849}
   m_PrefabAsset: {fileID: 0}
