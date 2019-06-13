@@ -10,6 +10,8 @@ public class CameraController : NetworkBehaviour
     public Vector3 offset;
     public CameraController localController;
 
+    public List<UIManager> otherUIManager; // nonlocal UIManager 
+
     private void Awake() {
         UIManager = GetComponent<UIManager>();    
     }
@@ -19,6 +21,7 @@ public class CameraController : NetworkBehaviour
             mainCamera.gameObject.SetActive(false);
             localController = ClientScene.localPlayer.GetComponent<CameraController>();
             mainCamera = localController.mainCamera;
+            localController.otherUIManager.Add(GetComponent<UIManager>());
             return;
         } 
 
@@ -31,7 +34,11 @@ public class CameraController : NetworkBehaviour
             return;
             
         mainCamera.transform.position = transform.position + offset;
-        UIManager.SetUI();
-    }
 
+        UIManager.SetUI();
+        foreach (UIManager manager in otherUIManager)
+        {
+            manager.SetUI();
+        }
+    }
 }

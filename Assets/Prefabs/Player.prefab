@@ -246,8 +246,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   serverOnly: 0
   localPlayerAuthority: 1
-  m_AssetId: 
-  m_SceneId: 1783063075
+  m_AssetId: 768d060955f3cd248beae95f24169b13
+  m_SceneId: 0
 --- !u!114 &7304294677727511631
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -275,6 +275,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   syncInterval: 0.1
+  statBarsCanvas: {fileID: 8300642948534027016}
   healthBar: {fileID: 1178712679193854233}
   player: {fileID: 1616780849042172473}
   offset: {x: 0, y: 25, z: 0}
@@ -329,6 +330,7 @@ MonoBehaviour:
   mainCamera: {fileID: 1616780850022186400}
   offset: {x: 0, y: 0, z: 0}
   localController: {fileID: 0}
+  otherUIManager: []
 --- !u!1 &1616780850022186430
 GameObject:
   m_ObjectHideFlags: 0
@@ -592,7 +594,6 @@ GameObject:
   - component: {fileID: 8300642948534027016}
   - component: {fileID: 8031444785726478573}
   - component: {fileID: 1394159196828417415}
-  - component: {fileID: 7142589886267886486}
   m_Layer: 0
   m_Name: PlayerStatBars
   m_TagString: Untagged
@@ -663,23 +664,6 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
---- !u!114 &7142589886267886486
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8060970354234984135}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1301386320, guid: f70555f144d8491a825f0804e09c671c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
-  m_BlockingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
 --- !u!1001 &2891460065721408849
 PrefabInstance:
   m_ObjectHideFlags: 0
