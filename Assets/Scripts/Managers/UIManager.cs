@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
-using UnityEngine.SceneManagement;
 
 public class UIManager : NetworkBehaviour {
 
     private CameraController cameraController;
-    public RectTransform healthBar;
+    public Transform healthBar;
     public Transform player;
     public Vector3 offset;
 
@@ -15,12 +14,11 @@ public class UIManager : NetworkBehaviour {
         cameraController = GetComponent<CameraController>();
     }
 
-    private void Start() {
-        offset = healthBar.position - cameraController.mainCamera.WorldToScreenPoint(player.position);
+    public void SetUI() {
+        healthBar.position = cameraController.mainCamera.WorldToScreenPoint(player.position) + offset;    
     }
 
-    private void FixedUpdate() {
-        healthBar.position = cameraController.mainCamera.WorldToScreenPoint(player.position) + offset;          
+    private void LateUpdate() {
+        //SetUI();
     }
-
 }

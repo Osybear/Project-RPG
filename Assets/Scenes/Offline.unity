@@ -1142,7 +1142,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ac194ce0eadaf244978b628fd8f1ffc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  networkManager: {fileID: 0}
+  networkManager: {fileID: 772758125}
   usernameField: {fileID: 1603830879}
   passwordField: {fileID: 1070722763}
 --- !u!1 &1267975878

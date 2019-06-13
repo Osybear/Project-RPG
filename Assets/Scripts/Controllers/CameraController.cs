@@ -4,10 +4,15 @@ using UnityEngine;
 using Mirror;
 
 public class CameraController : NetworkBehaviour
-{   
+{      
+    private UIManager UIManager;
     public Camera mainCamera;
     public Vector3 offset;
     public CameraController localController;
+
+    private void Awake() {
+        UIManager = GetComponent<UIManager>();    
+    }
 
     private void Start() {
         if(!isLocalPlayer) {
@@ -18,7 +23,7 @@ public class CameraController : NetworkBehaviour
         } 
 
         offset = mainCamera.transform.position - transform.position;
-        mainCamera.transform.parent = null;
+        mainCamera.transform.parent = transform.parent;
     }
 
     private void LateUpdate () {
@@ -26,6 +31,7 @@ public class CameraController : NetworkBehaviour
             return;
             
         mainCamera.transform.position = transform.position + offset;
+        UIManager.SetUI();
     }
 
 }
