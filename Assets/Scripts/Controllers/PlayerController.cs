@@ -8,22 +8,24 @@ public class PlayerController : NetworkBehaviour
 {   
     private NetworkAnimator networkAnimator;
     private CameraController cameraController;
-
-    public new Rigidbody rigidbody;
+    private Rigidbody myRigidbody;
+    
     public Animator animator; 
     [Range(0,100)]
     public float speed;
     public Plane centerPlane;
     
     private void Awake() {
+        myRigidbody = GetComponent<Rigidbody>();
         cameraController = GetComponent<CameraController>();
         networkAnimator = GetComponent<NetworkAnimator>();
         centerPlane = new Plane(Vector3.up, -1.5f);
     }
 
-    private void Start() {
+    private void Start() {  
         if(!isLocalPlayer) {    
-            gameObject.name = "Non Local Player";   
+            gameObject.name = "Non Local Player";
+            myRigidbody.constraints = RigidbodyConstraints.FreezeAll;   
         }else {
             gameObject.name = "Local Player";
         }
@@ -46,13 +48,13 @@ public class PlayerController : NetworkBehaviour
         float vertical = Input.GetAxisRaw("Vertical"); 
         
         Vector3 globalDirection = new Vector3(horizontal, 0, vertical);
-        rigidbody.velocity = globalDirection * speed;
+        myRigidbody.velocity = globalDirection * speed;
         Vector3 localDirection = transform.InverseTransformDirection(globalDirection);
 
         animator.SetFloat("Horizontal", localDirection.x);
         animator.SetFloat("Vertical", localDirection.z);
         animator.SetFloat("MotionSpeed", speed);
-        animator.SetFloat("Velocity", rigidbody.velocity.magnitude);
+        animator.SetFloat("Velocity", myRigidbody.velocity.magnitude);
     }
 
     private void LookAtRaycast() {
