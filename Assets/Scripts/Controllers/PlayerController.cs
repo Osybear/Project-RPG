@@ -6,19 +6,18 @@ using UnityEngine.SceneManagement;
 
 public class PlayerController : NetworkBehaviour 
 {   
-    private NetworkAnimator networkAnimator;
     private CameraController cameraController;
     private Rigidbody myRigidbody;
-    
-    public Animator animator; 
+    private Animator animator; 
+
     [Range(0,100)]
     public float speed;
     public Plane centerPlane;
     
     private void Awake() {
+        animator = GetComponentInChildren<Animator>();
         myRigidbody = GetComponent<Rigidbody>();
         cameraController = GetComponent<CameraController>();
-        networkAnimator = GetComponent<NetworkAnimator>();
         centerPlane = new Plane(Vector3.up, -1.5f);
     }
 
@@ -34,10 +33,6 @@ public class PlayerController : NetworkBehaviour
     private void Update() {
         if(!isLocalPlayer)
             return;
-
-        if(Input.GetMouseButtonDown(0)) {
-            networkAnimator.SetTrigger("Attack");
-        }
         
         PlayerMovement();
         LookAtRaycast();

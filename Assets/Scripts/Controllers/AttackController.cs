@@ -6,20 +6,36 @@ using System;
 
 public class AttackController : NetworkBehaviour
 {
+    private NetworkAnimator networkAnimator;
+    private Animator animator;
     public LayerMask layerMask;
     public float radius;
     public float maxAngle;
     public int damage;
+
+    private void Awake() {
+        networkAnimator = GetComponent<NetworkAnimator>();
+        animator = GetComponentInChildren<Animator>();
+    }
 
     private void Update() {
         if(!isLocalPlayer)
             return;
 
         if(Input.GetMouseButtonDown(0)) {
-            CmdSwingAttack();
+            networkAnimator.SetTrigger("Attack");
+            animator.SetBool("isAttacking", true);
+        }
+
+        if(Input.GetMouseButtonUp(0)) {
+            animator.SetBool("isAttacking", false);
         }
     }
     
+    /*
+        This will get called by the animation event
+        at the apex of the attack to match
+    */
     [Command]
     private void CmdSwingAttack() {
         GameObject destructible = GetDestructibleObject();
